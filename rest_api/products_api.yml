@@ -1,0 +1,68 @@
+openapi: 3.0.3
+
+info:
+  title: Cognito OAuth2 Scopes
+  description: Securing AWS API Gateway using AWS Cognito OAuth2 Scopes
+  version: "1.0.0"
+servers:
+  - url: "either relative, or url with variables for API Gateway (or maybe no so required with APIGW??"
+
+paths:
+  /products:
+    post: 
+      tags: 
+        - product
+      summary: add a new product to the catalog
+      operationId: addProduct 
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductWithId'
+        '405':
+          description: Invalid input
+      requestBody:
+        $ref: '#/components/requestBodies/Product'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${create_product_arn}/invocations"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        timeoutInMillis: ${lambda_identity_timeout}
+        type: "aws_proxy"
+        content_handling: CONVERT_TO_TEXT
+      x-amazon-gateway-auth:
+        type: "NONE"
+    
+components:
+  schemas:
+    Product: 
+      type: object 
+      required:
+        - name 
+        - description 
+      properties: 
+        id: 
+          type: integer
+          format: int64
+        name: 
+          type: string
+        description:
+          type: string
+    ProductWithId:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          required: 
+            - productId 
+          properties:
+            product_id:
+              type: string
+              format: uuid
+  requestBodies:
+    Product: 
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Product'
