@@ -28,27 +28,11 @@ resource "aws_api_gateway_stage" "products_api_dev" {
 }
 
 resource "aws_lambda_permission" "api_gateway_invoke_create_product" {
+  for_each = toset(var.the_lambdas)
+
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = var.lambdas["create-product"]["name"]
-  principal     = "apigateway.amazonaws.com"
-
-  source_arn = "${aws_api_gateway_rest_api.products_api.execution_arn}/*/*"
-}
-
-resource "aws_lambda_permission" "api_gateway_invoke_get_product" {
-  statement_id  = "AllowAPIGatewayInvoke"
-  action        = "lambda:InvokeFunction"
-  function_name = var.lambdas["get-product"]["name"]
-  principal     = "apigateway.amazonaws.com"
-
-  source_arn = "${aws_api_gateway_rest_api.products_api.execution_arn}/*/*"
-}
-
-resource "aws_lambda_permission" "api_gateway_invoke_delete_product" {
-  statement_id  = "AllowAPIGatewayInvoke"
-  action        = "lambda:InvokeFunction"
-  function_name = var.lambdas["delete-product"]["name"]
+  function_name = data.terraform_remote_state.lambdas_for_cognito.outputs.lambdas[each.key]["name"]
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.products_api.execution_arn}/*/*"
