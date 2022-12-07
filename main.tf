@@ -10,28 +10,46 @@ resource "aws_api_gateway_rest_api" "products_api" {
 }
 
 resource "aws_api_gateway_deployment" "products_api_deployment" {
-    rest_api_id = aws_api_gateway_rest_api.products_api.id 
+  rest_api_id = aws_api_gateway_rest_api.products_api.id
 
-    triggers = {
-        redeployment = sha1(jsonencode(aws_api_gateway_rest_api.products_api.body))
-    }
+  triggers = {
+    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.products_api.body))
+  }
 
-    lifecycle {
-      create_before_destroy = true
-    }
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_api_gateway_stage" "products_api_dev" {
-    deployment_id = aws_api_gateway_deployment.products_api_deployment.id 
-    rest_api_id = aws_api_gateway_rest_api.products_api.id 
-    stage_name = "products-api-dev"
+  deployment_id = aws_api_gateway_deployment.products_api_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.products_api.id
+  stage_name    = "products-api-dev"
 }
 
-resource "aws_lambda_permission" "api_gateway_invoke_lambda" {
+resource "aws_lambda_permission" "api_gateway_invoke_create_product" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
   function_name = var.lambdas["create-product"]["name"]
-  principal = "apigateway.amazonaws.com"
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.products_api.execution_arn}/*/*"
+}
+
+resource "aws_lambda_permission" "api_gateway_invoke_get_product" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = var.lambdas["get-product"]["name"]
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.products_api.execution_arn}/*/*"
+}
+
+resource "aws_lambda_permission" "api_gateway_invoke_delete_product" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = var.lambdas["delete-product"]["name"]
+  principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.products_api.execution_arn}/*/*"
 }

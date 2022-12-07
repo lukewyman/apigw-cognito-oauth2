@@ -10,5 +10,13 @@ data "template_file" "products_api" {
     create_product_arn      = var.lambdas["create-product"]["arn"]
     aws_region              = var.aws_region
     lambda_identity_timeout = 5000 # var.lambda_identity_timeout
+
+    get_product_arn         = var.lambdas["get-product"]["arn"]
+    aws_region              = var.aws_region
+    lambda_identity_timeout = 5000
+
+    delete_product_arn      = var.lambdas["delete-product"]["arn"]
+    aws_region              = var.aws_region
+    lambda_identity_timeout = 5000
   }
 }
