@@ -3,7 +3,7 @@ variable "aws_region" {
 }
 
 variable "app_prefix" {
-  default = "lambdas-for-cognito"
+  default = "apigw-cognito-oauth2"
 }
 
 variable "the_lambdas" {
