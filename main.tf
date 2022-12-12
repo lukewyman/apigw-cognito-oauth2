@@ -21,10 +21,10 @@ resource "aws_api_gateway_deployment" "products_api_deployment" {
   }
 }
 
-resource "aws_api_gateway_stage" "products_api_dev" {
+resource "aws_api_gateway_stage" "stage" {
   deployment_id = aws_api_gateway_deployment.products_api_deployment.id
   rest_api_id   = aws_api_gateway_rest_api.products_api.id
-  stage_name    = "products-api-dev"
+  stage_name    = "${terraform.workspace}"
 }
 
 resource "aws_lambda_permission" "api_gateway_invoke_create_product" {
