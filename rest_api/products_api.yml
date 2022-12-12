@@ -25,6 +25,8 @@ paths:
           description: Invalid input
       requestBody:
         $ref: '#/components/requestBodies/Product'
+      security:
+        - CognitoAuthorizer: [products/create_product]      
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${create_product_arn}/invocations"
         passthroughBehavior: "when_no_match"
@@ -57,6 +59,8 @@ paths:
                 $ref: '#/components/schemas/ProductWithId'
         '405':
           description: Invalid input
+      security:
+        - CognitoAuthorizer: [products/read_product]   
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${get_product_arn}/invocations"
         passthroughBehavior: "when_no_match" 
@@ -82,6 +86,8 @@ paths:
       responses:
         "204": 
           description: successful operation
+      security:
+        - CognitoAuthorizer: [products/delete_product]
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${delete_product_arn}/invocations"
         passthroughBehavior: "when_no_match" 
@@ -122,3 +128,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Product'
+  securitySchemes:
+    CognitoAuthorizer:
+      type: apiKey 
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: cognito_user_pools
+      x-amazon-apigateway-authorizer: 
+        type: cognito_user_pools
+        providerARNs:
+          - arn:aws:cognito-idp:${aws_region}:${account_id}:userpool/${user_pool_id}
